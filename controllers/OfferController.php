@@ -7,6 +7,7 @@ use app\models\Offer;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
+use yii\data\ActiveDataProvider;
 
 class OfferController extends Controller
 {
@@ -16,16 +17,36 @@ class OfferController extends Controller
      */
     public function actionIndex()
     {
-        $offers = Offer::find()->orderBy(['id' => SORT_ASC])->all();
+        // $offers = Offer::find()->orderBy(['id' => SORT_ASC])->all();
+
+        // if (Yii::$app->request->isAjax) {
+        //     return $this->renderPartial('_list', [
+        //         'offers' => $offers,
+        //     ]);
+        // }
+
+        // return $this->render('index', [
+        //     'offers' => $offers,
+        // ]);
+
+        $query = Offer::find()->orderBy(['id' => SORT_ASC]);
+
+        // Создаём ActiveDataProvider с пагинацией
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 10, // Максимум 10 записей на странице
+            ],
+        ]);
 
         if (Yii::$app->request->isAjax) {
             return $this->renderPartial('_list', [
-                'offers' => $offers,
+                'dataProvider' => $dataProvider,
             ]);
         }
 
         return $this->render('index', [
-            'offers' => $offers,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
@@ -117,10 +138,17 @@ class OfferController extends Controller
             $query->andWhere(['like', 'email', $email]);
         }
 
-        $offers = $query->orderBy(['id' => SORT_ASC])->all();
+        $query->orderBy(['id' => SORT_ASC]);
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+        ]);
 
         $content = $this->renderPartial('_list', [
-            'offers' => $offers,
+            'dataProvider' => $dataProvider,
         ]);
 
         return ['content' => $content];
@@ -147,10 +175,15 @@ class OfferController extends Controller
 
         $query = Offer::find()->orderBy([$sort => ($order === 'ASC') ? SORT_ASC : SORT_DESC]);
 
-        $offers = $query->all();
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+        ]);
 
         $content = $this->renderPartial('_list', [
-            'offers' => $offers,
+            'dataProvider' => $dataProvider,
         ]);
 
         return ['success' => true, 'content' => $content];

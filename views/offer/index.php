@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
-/* @var $offers app\models\Offer[] */
+/* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = 'Список Офферов';
 $this->params['breadcrumbs'][] = $this->title;
@@ -27,7 +27,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <div id="offer-list">
         <?= $this->render('_list', [
-            'offers' => $offers,
+            'dataProvider' => $dataProvider,
         ]) ?>
     </div>
 
@@ -145,6 +145,16 @@ $(document).ready(function(){
             error: function(){
                 showNotification('Ошибка при сортировке офферов', 'danger');
             }
+        });
+    });
+
+    $(document).on('click', '.pagination a', function(e){
+        e.preventDefault();
+        var url = $(this).attr('href');
+        $.get(url, function(data){
+            $('#offer-list').html(data);
+        }).fail(function(){
+            showNotification('Ошибка при загрузке страницы', 'danger');
         });
     });
 
